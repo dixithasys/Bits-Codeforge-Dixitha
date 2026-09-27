@@ -372,6 +372,15 @@
       const selectedFile = e.target.files[0];
       const r = new FileReader();
 
+      // Reset timer and previous results for the new file upload
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      gradingStartTime = null;
+      updateTimerDisplay(0);
+      thankyou.innerText = "";
+
       r.onload = ev => {
         try {
           const dataBuffer = new Uint8Array(ev.target.result);
@@ -443,10 +452,10 @@
       instructor.style.borderColor = "#d1d5db";
       welcome.style.color = "#065f46";
       welcome.innerText = `Welcome ${instructor.value.toUpperCase()}. Please review and finalize grading for ${course.value}.`;
+      thankyou.innerText = "";
 
-      if (!timerInterval) {
-        startTimer();
-      }
+      // Start fresh timer for the selected course
+      startTimer();
       buildGradeUI();
       updateAll();
     };
@@ -671,6 +680,7 @@
     download.onclick = () => {
       finalizeCount++;
       clearInterval(timerInterval);
+      timerInterval = null;
 
       const elapsed = gradingStartTime ? (Date.now() - gradingStartTime) : 0;
       const minT = Math.floor(elapsed / 60000);
